@@ -1,89 +1,93 @@
 name: CI Pipeline
 
-# Trigger the workflow on push or pull_request events for the develop branch
 on:
   push:
     branches:
-      - develop
+      - main
+      - branch
   pull_request:
     branches:
-      - develop
+      - main 
+      - branch
 
 jobs:
-  # Job 1: Set up and test the frontend and backend
   build-and-test:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu environment
+    runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Step 2: Set up Node.js (adjust the version as needed)
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '14'  # Change version if necessary
+          node-version: '14'
 
-      # Step 3: Install dependencies for frontend and backend
-      - name: Install dependencies
+      - name: Install dependencies (backend)
         run: |
-          cd backend && npm install
-          cd ../frontend && npm install
+          cd backend
+          npm install
+          npm ls  # List installed dependencies for debugging
 
-      # Step 4: Run tests for frontend and backend
-      - name: Run tests
+      - name: Install dependencies (frontend)
         run: |
-          cd backend && npm test
-          cd ../frontend && npm test
+          cd frontend
+          npm install
+          npm ls  # List installed dependencies for debugging
 
-  # Job 2: Build and push Docker images (adjust according to your setup)
+      - name: Run tests (backend)
+        run: |
+          cd backend
+          npm test
+
+      - name: Run tests (frontend)
+        run: |
+          cd frontend
+          npm test
+
   docker-build-and-deploy:
     runs-on: ubuntu-latest
-    needs: build-and-test  # This job will run only after the previous job is successful
+    needs: build-and-test
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Step 2: Log in to DockerHub (or any container registry)
       - name: Log in to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}  # Add your DockerHub username in GitHub secrets
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}  # Add your DockerHub password in GitHub secrets
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      # Step 3: Build the Docker images for frontend and backend
+      - name: List frontend files for debugging
+        run: |
+          ls -al frontend  # List files in the frontend directory for debugging
+
       - name: Build frontend Docker image
         run: |
           cd frontend
           docker build -t your-docker-username/frontend:latest .
-        
+
+      - name: List backend files for debugging
+        run: |
+          ls -al backend  # List files in the backend directory for debugging
+
       - name: Build backend Docker image
         run: |
           cd backend
           docker build -t your-docker-username/backend:latest .
 
-      # Step 4: Push the Docker images to DockerHub
       - name: Push Docker images
         run: |
           docker push your-docker-username/frontend:latest
           docker push your-docker-username/backend:latest
 
-  # Job 3: Deploy (Optional, if you're deploying automatically)
   deploy:
     runs-on: ubuntu-latest
-    needs: docker-build-and-deploy  # Runs after Docker build and push job
+    needs: docker-build-and-deploy
     steps:
-      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Step 2: Add deployment steps here, for example, using SSH, Kubernetes, etc.
       - name: Deploy to Production (example step)
         run: |
           echo "Deploying your app"
-          # Add your deployment commands here
-          # Example for SSH:
-          # ssh -i ${{ secrets.SSH_PRIVATE_KEY }} user@server 'deploy_command'
-          # Example for Kubernetes:
-          # kubectl apply -f deployment.yaml
+          # Add your deployment commands here (e.g., SSH to server or kubectl commands)
