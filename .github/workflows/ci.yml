@@ -1,13 +1,13 @@
 name: CI Pipeline
 
-# Trigger the workflow on push or pull_request events for the 'branch' branch
 on:
   push:
     branches:
       - branch
   pull_request:
     branches:
-      - main
+      - branch
+      -main
 
 jobs:
   build-and-test:
@@ -16,41 +16,41 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Check directory structure (backend)
+      - name: Check directory structure (frontend)
         run: |
-          echo "Listing contents of the backend directory"
-          ls -al backend
+          echo "Listing contents of the frontend directory"
+          ls -al frontend
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '14'
 
-      - name: Install dependencies (backend)
-        run: |
-          cd backend
-          npm install --verbose
-          npm ls  # List installed dependencies for debugging
-
       - name: Install dependencies (frontend)
         run: |
           cd frontend
-          npm install --verbose
+          npm install --unsafe-perm=true --verbose  # Use unsafe-perm to avoid permission issues
           npm ls  # List installed dependencies for debugging
-          
-      - name: Run tests (backend)
-        run: |
-          if [ -f backend/package.json ]; then
-            cd backend
-            npm test
-          else
-            echo "No backend tests available, skipping backend test step."
-          fi
 
       - name: Run tests (frontend)
         run: |
           cd frontend
-          npm test --verbose  # Get more details for test failures
+          npm test --verbose  # Run tests with verbose logging
+
+      - name: Install dependencies (backend)
+        run: |
+          cd backend
+          npm install --unsafe-perm=true --verbose  # Same for backend if necessary
+          npm ls  # List installed dependencies for debugging
+
+      - name: Run tests (backend)
+        run: |
+          if [ -f backend/package.json ]; then
+            cd backend
+            npm test --verbose
+          else
+            echo "No backend tests available, skipping backend test step."
+          fi
 
   docker-build-and-deploy:
     runs-on: ubuntu-latest
