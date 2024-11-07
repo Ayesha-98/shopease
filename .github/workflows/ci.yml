@@ -3,9 +3,11 @@ name: CI Pipeline
 on:
   push:
     branches:
+      - main
       - branch
   pull_request:
     branches:
+      - main 
       - branch
 
 jobs:
@@ -35,12 +37,12 @@ jobs:
       - name: Run tests (backend)
         run: |
           cd backend
-          npm test || echo "Backend tests failed"
+          npm test
 
       - name: Run tests (frontend)
         run: |
           cd frontend
-          npm test || echo "Frontend tests failed"
+          npm test
 
   docker-build-and-deploy:
     runs-on: ubuntu-latest
@@ -55,10 +57,18 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
+      - name: List frontend files for debugging
+        run: |
+          ls -al frontend  # List files in the frontend directory for debugging
+
       - name: Build frontend Docker image
         run: |
           cd frontend
           docker build -t your-docker-username/frontend:latest .
+
+      - name: List backend files for debugging
+        run: |
+          ls -al backend  # List files in the backend directory for debugging
 
       - name: Build backend Docker image
         run: |
@@ -80,4 +90,4 @@ jobs:
       - name: Deploy to Production (example step)
         run: |
           echo "Deploying your app"
-          # Add your deployment commands here
+          # Add your deployment commands here (e.g., SSH to server or kubectl commands)
