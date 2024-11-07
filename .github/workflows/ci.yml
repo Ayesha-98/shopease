@@ -3,12 +3,12 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - branch  # Make sure 'branch' is the name of your branch
-      -main
+      - branch  
+      - main   
   pull_request:
     branches:
       - main  
-      -branch
+      - branch
 
 jobs:
   build-and-test:
