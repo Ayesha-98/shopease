@@ -1,20 +1,89 @@
-# Use an official Node.js runtime as a parent image
-FROM node:14
+name: CI Pipeline
 
-# Set the working directory
-WORKDIR /app
+# Trigger the workflow on push or pull_request events for the develop branch
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+jobs:
+  # Job 1: Set up and test the frontend and backend
+  build-and-test:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu environment
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-# Install dependencies
-RUN npm install
+      # Step 2: Set up Node.js (adjust the version as needed)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'  # Change version if necessary
 
-# Copy the rest of the application files
-COPY . .
+      # Step 3: Install dependencies for frontend and backend
+      - name: Install dependencies
+        run: |
+          cd backend && npm install
+          cd ../frontend && npm install
 
-# Expose the port the app will run on
-EXPOSE 5000
+      # Step 4: Run tests for frontend and backend
+      - name: Run tests
+        run: |
+          cd backend && npm test
+          cd ../frontend && npm test
 
-# Run the app
-CMD ["npm", "start"]
+  # Job 2: Build and push Docker images (adjust according to your setup)
+  docker-build-and-deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test  # This job will run only after the previous job is successful
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Log in to DockerHub (or any container registry)
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}  # Add your DockerHub username in GitHub secrets
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}  # Add your DockerHub password in GitHub secrets
+
+      # Step 3: Build the Docker images for frontend and backend
+      - name: Build frontend Docker image
+        run: |
+          cd frontend
+          docker build -t your-docker-username/frontend:latest .
+        
+      - name: Build backend Docker image
+        run: |
+          cd backend
+          docker build -t your-docker-username/backend:latest .
+
+      # Step 4: Push the Docker images to DockerHub
+      - name: Push Docker images
+        run: |
+          docker push your-docker-username/frontend:latest
+          docker push your-docker-username/backend:latest
+
+  # Job 3: Deploy (Optional, if you're deploying automatically)
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker-build-and-deploy  # Runs after Docker build and push job
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Add deployment steps here, for example, using SSH, Kubernetes, etc.
+      - name: Deploy to Production (example step)
+        run: |
+          echo "Deploying your app"
+          # Add your deployment commands here
+          # Example for SSH:
+          # ssh -i ${{ secrets.SSH_PRIVATE_KEY }} user@server 'deploy_command'
+          # Example for Kubernetes:
+          # kubectl apply -f deployment.yaml
