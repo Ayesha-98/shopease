@@ -38,15 +38,14 @@ jobs:
           npm install --verbose
           npm ls  # List installed dependencies for debugging
           
-        - name: Run tests (backend)
-          run: |
-            if [ -f backend/package.json ]; then
-              cd backend
-              npm test
-            else
-              echo "No backend tests available, skipping backend test step."
-            fi
-
+      - name: Run tests (backend)
+        run: |
+          if [ -f backend/package.json ]; then
+            cd backend
+            npm test
+          else
+            echo "No backend tests available, skipping backend test step."
+          fi
 
       - name: Run tests (frontend)
         run: |
