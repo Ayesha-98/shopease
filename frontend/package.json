@@ -6,8 +6,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",  
-    "test:jest": "jest"  
+    "test": "react-scripts test"
   },
   "repository": {
     "type": "git",
@@ -52,6 +51,19 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
-    ]
+    ],
+
+     "scripts": {
+      "start": "react-scripts start",
+      "build": "react-scripts build",
+      "test": "react-scripts test"
+  },
+  "dependencies": {
+      "react-scripts": "^5.0.1"
   }
+  }
+  
+
+  
 }
+
