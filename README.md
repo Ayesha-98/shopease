@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ShopEase
 
 ShopEase is a fully functional e-commerce web application that offers users a seamless shopping experience. The application is designed to replicate modern online store features, allowing users to browse products, manage their cart, and securely log in to their accounts.
@@ -21,3 +22,6 @@ ShopEase is a fully functional e-commerce web application that offers users a se
 1. Clone the repository:
    ```bash
    git clone https://github.com/nomee07/shopease.git
+=======
+# shopease
+>>>>>>> 609704546e17b50ae48c445a5b902d7e9e4bf481
