@@ -3,12 +3,12 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - main
-      - branch
+      - main  
+      -branch
   pull_request:
     branches:
-      - main 
-      - branch
+      - main  
+      -branch
 
 jobs:
   build-and-test:
@@ -22,27 +22,33 @@ jobs:
         with:
           node-version: '14'
 
+      - name: Check Node.js version
+        run: node -v
+
+      - name: Check npm version
+        run: npm -v
+
       - name: Install dependencies (backend)
         run: |
           cd backend
-          npm install
+          npm install --verbose  # Add verbose logging to npm install
           npm ls  # List installed dependencies for debugging
 
       - name: Install dependencies (frontend)
         run: |
           cd frontend
-          npm install
+          npm install --verbose  # Add verbose logging to npm install
           npm ls  # List installed dependencies for debugging
 
       - name: Run tests (backend)
         run: |
           cd backend
-          npm test
+          npm test --verbose  # Get more details for test failures
 
       - name: Run tests (frontend)
         run: |
           cd frontend
-          npm test
+          npm test --verbose  # Get more details for test failures
 
   docker-build-and-deploy:
     runs-on: ubuntu-latest
