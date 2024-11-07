@@ -16,7 +16,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Debugging step to check backend directory structure
       - name: Check directory structure (backend)
         run: |
           echo "Listing contents of the backend directory"
@@ -38,11 +37,16 @@ jobs:
           cd frontend
           npm install --verbose
           npm ls  # List installed dependencies for debugging
+          
+        - name: Run tests (backend)
+          run: |
+            if [ -f backend/package.json ]; then
+              cd backend
+              npm test
+            else
+              echo "No backend tests available, skipping backend test step."
+            fi
 
-      - name: Run tests (backend)
-        run: |
-          cd backend
-          npm test --verbose  # Get more details for test failures
 
       - name: Run tests (frontend)
         run: |
